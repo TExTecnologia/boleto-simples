@@ -1,0 +1,28 @@
+#!/bin/bash
+
+DIR="$( cd -P "$( dirname "$0" )" && pwd )"
+cd $DIR
+cd ..
+CURR_FOLDER=`pwd`
+
+# Root
+cd $CURR_FOLDER
+
+USER=tex
+SERVER=200.98.233.178
+DEPLOY_FOLDER="~/www/boleto-simples"
+
+# Sync
+rsync -avzlhe ssh -r --delete --include-from $CURR_FOLDER/.rsync-include --exclude-from $CURR_FOLDER/.rsync-exclude $CURR_FOLDER/. $USER@$SERVER:$DEPLOY_FOLDER > $CURR_FOLDER/.rsync.log
+
+ssh -T $USER@$SERVER <<EOF
+cd $DEPLOY_FOLDER
+# NODE_ENV=production bin/db
+/usr/local/bin/npm install --production
+/usr/local/bin/pm2 startOrGracefulReload ecosystem.json --env production
+/usr/local/bin/pm2 save
+exit 0
+EOF
+
+cowsay 'Deploy finalizado... Yeahh!!'
+exit 0

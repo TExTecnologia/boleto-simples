@@ -1,0 +1,6 @@
+app/***
+config
+config/boleto.json
+index.js
+ecosystem.json
+package.json

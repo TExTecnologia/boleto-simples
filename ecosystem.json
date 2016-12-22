@@ -1,0 +1,19 @@
+{
+  "apps": [{
+    "name": "boleto-simples",
+    "script": "index.js",
+    "env": {
+      "DEBUG": "webhook:\*",
+      "NODE_ENV": "production",
+      "PORT": "3008"
+    }
+  }, {
+    "name": "boleto-simples-dev",
+    "script": "index.js",
+    "env": {
+      "DEBUG": "webhook:\*",
+      "NODE_ENV": "dev",
+      "PORT": "3009"
+    }
+  }]
+}
