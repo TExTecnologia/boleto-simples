@@ -1,17 +1,17 @@
 'use strict'
 
 const hex = require('lagden-hex')
-// const debug = require('./debug')
+const debug = require('./debug')
 
 function _expire(timestamp, life = 10000) {
 	const now = Date.now()
-	console.log(timestamp, now)
+	debug.log('_expire ---> ', timestamp, now)
 	return (now - life) < timestamp
 }
 
 function verifyToken(token) {
 	const timestamp = hex.decode(token, false)
-	console.log(token, timestamp)
+	debug.log('verifyToken ---> ', token, timestamp)
 	return _expire(Number(timestamp))
 }
 

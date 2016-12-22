@@ -2,6 +2,7 @@
 
 const got = require('got')
 const config = require('../../config/boleto.json')
+const debug = require('./debug')
 
 const boleto = config.boleto
 const env = process.env.NODE_ENV || 'dev'
@@ -24,9 +25,9 @@ function send(endpoint, data = '', method = 'post', xHeaders = {}) {
 	}
 
 	const url = `${baseEndpoint}${endpoint}`
-	console.log('url', url)
-	console.log('headers', headers)
-	console.log('body', body)
+	debug.log('send --> url -->', url)
+	debug.log('send --> headers -->', headers)
+	debug.log('send --> body -->', body)
 
 	return got[method](url, {
 		headers,

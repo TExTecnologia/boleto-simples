@@ -24,8 +24,16 @@ router.post('/', async (ctx, next) => {
 			ctx.body = r.body
 			return next()
 		} catch (err) {
-			debug.error('POST /boletos', 'send', err.name, err.message)
-			ctx.throw(422)
+			debug.error('POST /boletos', 'send', err.name)
+			debug.error('POST /boletos', 'send', err.message)
+			if (err.response && err.response.body) {
+				debug.error('POST /boletos', 'send', err.response.body)
+				debug.error('POST /boletos', 'send', err.status)
+				ctx.body = err.response.body
+			}
+			ctx.status = err.statusCode || err.status
+			// ctx.throw(err)
+			return next()
 		}
 	}
 	ctx.throw(400)
