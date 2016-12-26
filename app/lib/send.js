@@ -29,6 +29,8 @@ function send(endpoint, data = '', method = 'post', xHeaders = {}) {
 	debug.log('send --> headers -->', headers)
 	debug.log('send --> body -->', body)
 
+	// console.log('--->', method, url)
+
 	return got[method](url, {
 		headers,
 		body
