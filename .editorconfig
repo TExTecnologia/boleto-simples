@@ -11,5 +11,8 @@ insert_final_newline = true
 [*.{md,yml,json}]
 indent_style = space
 
+[salesforce/*.js]
+indent_style = space
+
 [*.{md,yml}]
 trim_trailing_whitespace = false

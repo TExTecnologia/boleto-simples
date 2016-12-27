@@ -5,6 +5,7 @@
 /* eslint new-cap: 0 */
 /* eslint camelcase: 0 */
 /* eslint no-alert: 0 */
+/* eslint quotes: 0 */
 
 {!REQUIRESCRIPT('/soap/ajax/32.0/connection.js')}
 {!REQUIRESCRIPT('/soap/ajax/32.0/apex.js')}
@@ -36,11 +37,15 @@ function gravaNumeroBoleto(idBoleto) {
 function _ajaxSuccess(evt) {
   var t = evt.target
   console.log('_ajaxSuccess', t)
-  if (t.readyState === 4 && (t.status === 200 || t.status === 201)) {
-    t.removeEventListener('load', _ajaxSuccess)
-    if (t.response && t.response.id) {
-      gravaNumeroBoleto(t.response.id)
-      alert('Boleto registrado com sucesso!')
+  if (t.readyState === 4) {
+    if (t.status === 200 || t.status === 201) {
+      t.removeEventListener('load', _ajaxSuccess)
+      if (t.response && t.response.id) {
+        gravaNumeroBoleto(t.response.id)
+        alert('Boleto registrado com sucesso!')
+      }
+    } else {
+      _ajaxError(evt)
     }
   }
 }
@@ -49,13 +54,16 @@ function _ajaxError(evt) {
   var t = evt.target
   console.log('_ajaxError', t)
   t.removeEventListener('error', _ajaxError)
+  if (t.response) {
+    alert(JSON.stringify(t.response))
+  }
   alert('Erro ao registrar o boleto.')
 }
 
 if (numeroBoleto) {
-  alert('Cancele este boleto antes de gerar um novo')
+  alert('Cancele este boleto antes de registrar um novo')
 } else {
-  var q = 'SELECT Name, caixa__CNPJ__c, caixa__CPF__c, BillingAddress, Bairro__c FROM Account WHERE Id = "{!caixa__Parcela__c.AccountId__c}" LIMIT 1'
+  var q = "SELECT Name, caixa__CNPJ__c, caixa__CPF__c, BillingAddress, Bairro__c FROM Account WHERE Id = '{!caixa__Parcela__c.AccountId__c}' LIMIT 1"
   var result = sforce.connection.query(q)
   var records = result.getArray('records')
 
@@ -64,20 +72,25 @@ if (numeroBoleto) {
     var _doc = records[0].caixa__CNPJ__c || records[0].caixa__CPF__c
     var dataBoleto = {
       bank_billet: {
+        our_number: '{!caixa__Parcela__c.caixa__Nosso_n_mero__c}',
         amount: _amount.split(' ')[1],
         expire_at: '{!caixa__Parcela__c.caixa__Data_Vencimento__c}',
-        description: 'BOLETO DE TESTES',
+        payment_place: '{!caixa__Parcela__c.caixa__Local_de_pagamento__c}',
+        description: 'RECIBO DO PAGADOR',
+        instructions: '{!caixa__Parcela__c.caixa__Instru_o_de_Cobran_a_1__c}',
         customer_person_name: records[0].Name,
         customer_cnpj_cpf: _doc,
-        customer_zipcode: Number(_cleanup(records[0].BillingAddress.postalCode)),
-        customer_email: 'vilanova@textecnologia.com.br',
+        customer_zipcode: _cleanup(records[0].BillingAddress.postalCode),
         customer_address: records[0].BillingAddress.street,
         customer_city_name: records[0].BillingAddress.city,
         customer_state: records[0].BillingAddress.state,
-        customer_neighborhood: records[0].Bairro__c,
-        instructions: 'SR(a) CAIXA, NÃO AUTORIZAMOS RECEBER ESTE BOLETO'
+        customer_neighborhood: records[0].Bairro__c
+        // Se desejar colocar o email do cliente para disparar automaticamente pelo Boleto Simples (Pago?!)
+        // customer_email: '{!caixa__Parcela__c.OwnerEmail}'
       }
     }
+
+    console.log(dataBoleto)
 
     var _xhr = new XMLHttpRequest()
     _xhr.addEventListener('load', _ajaxSuccess)
