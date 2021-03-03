@@ -1,17 +1,25 @@
 'use strict'
 
 const test = require('ava')
-const app = require('./helper/server')
+const got = require('got')
+const server = require('./helper/server')
 
 let boletoDate = new Intl.DateTimeFormat('pt-BR').format(new Date(Date.now() + 1000000000))
 let createdBoletoId
 
+test.before(async t => {
+	t.context.baseUrl = await server()
+})
+
 test('POST /boletos - 201', async t => {
-	const r = await app
-		.post('/boletos')
-		.set('X-Boleto-App', 'Test')
-		.set('X-Boleto-Token', Date.now())
-		.send({
+	const r = await got.post(`${t.context.baseUrl}/boletos`, {
+		throwHttpErrors: false,
+		responseType: 'json',
+		headers: {
+			'X-Boleto-App': 'Test',
+			'X-Boleto-Token': Date.now()
+		},
+		json: {
 			bank_billet: {
 				amount: '1.594,36',
 				expire_at: boletoDate,
@@ -26,18 +34,22 @@ test('POST /boletos - 201', async t => {
 				customer_neighborhood: 'São Geraldo',
 				instructions: 'SR(a) CAIXA, NÃO AUTORIZAMOS RECEBER ESTE BOLETO'
 			}
-		})
+		}
+	})
 
 	createdBoletoId = r.body.id
-	t.is(r.status, 201)
+	t.is(r.statusCode, 201)
 })
 
 test('POST /boletos - 422', async t => {
-	const r = await app
-		.post('/boletos')
-		.set('X-Boleto-App', 'Test')
-		.set('X-Boleto-Token', Date.now())
-		.send({
+	const r = await got.post(`${t.context.baseUrl}/boletos`, {
+		throwHttpErrors: false,
+		responseType: 'json',
+		headers: {
+			'X-Boleto-App': 'Test',
+			'X-Boleto-Token': Date.now()
+		},
+		json: {
 			bank_billet: {
 				amount: '1.594,36',
 				expire_at: boletoDate,
@@ -52,54 +64,74 @@ test('POST /boletos - 422', async t => {
 				customer_neighborhood: 'São Geraldo',
 				instructions: 'SR(a) CAIXA, NÃO AUTORIZAMOS RECEBER ESTE BOLETO'
 			}
-		})
+		}
+	})
 
-	t.is(r.status, 422)
+	t.is(r.statusCode, 422)
 	t.snapshot(r.body)
 })
 
 test('POST /boletos - 400', async t => {
-	const r = await app
-		.post('/boletos')
-		.set('X-Boleto-Token', Date.now())
-		.send({})
+	const r = await got.post(`${t.context.baseUrl}/boletos`, {
+		throwHttpErrors: false,
+		responseType: 'json',
+		headers: {
+			'X-Boleto-Token': Date.now()
+		},
+		json: {}
+	})
 
-	t.is(r.status, 400)
+	t.is(r.statusCode, 400)
 })
 
 test('PUT /boletos/:id/cancel - 204', async t => {
-	const r = await app
-		.put(`/boletos/${createdBoletoId}/cancel`)
-		.set('X-Boleto-App', 'Test')
-		.set('X-Boleto-Token', Date.now())
-		.send()
+	const r = await got.put(`${t.context.baseUrl}/boletos/${createdBoletoId}/cancel`, {
+		throwHttpErrors: false,
+		responseType: 'json',
+		headers: {
+			'X-Boleto-App': 'Test',
+			'X-Boleto-Token': Date.now()
+		}
+	})
 
-	t.is(r.status, 204)
+	t.is(r.statusCode, 204)
 })
 
 test('PUT /boletos/:id/cancel - 404', async t => {
-	const r = await app
-		.put('/boletos/1/cancel')
-		.set('X-Boleto-App', 'Test')
-		.set('X-Boleto-Token', Date.now())
+	const r = await got.put(`${t.context.baseUrl}/boletos/1/cancel`, {
+		throwHttpErrors: false,
+		responseType: 'json',
+		headers: {
+			'X-Boleto-App': 'Test',
+			'X-Boleto-Token': Date.now()
+		}
+	})
 
-	t.is(r.status, 404)
+	t.is(r.statusCode, 404)
 })
 
 test('PUT /boletos/:id/cancel - 400', async t => {
-	const r = await app
-		.put('/boletos/1/cancel')
-		.set('X-Boleto-Token', Date.now())
+	const r = await got.put(`${t.context.baseUrl}/boletos/1/cancel`, {
+		throwHttpErrors: false,
+		responseType: 'json',
+		headers: {
+			'X-Boleto-Token': Date.now()
+		}
+	})
 
-	t.is(r.status, 400)
+	t.is(r.statusCode, 400)
 })
 
 test('PUT /boletos/:id/cancel - 403', async t => {
-	const r = await app
-		.put(`/boletos/${createdBoletoId}/cancel`)
-		.set('X-Boleto-App', 'Test')
-		.set('X-Boleto-Token', Date.now())
+	const r = await got.put(`${t.context.baseUrl}/boletos/${createdBoletoId}/cancel`, {
+		throwHttpErrors: false,
+		responseType: 'json',
+		headers: {
+			'X-Boleto-App': 'Test',
+			'X-Boleto-Token': Date.now()
+		}
+	})
 
-	t.is(r.status, 403)
+	t.is(r.statusCode, 403)
 	t.snapshot(r.body)
 })
