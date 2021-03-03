@@ -1,25 +1,20 @@
 'use strict'
 
-/* eslint camelcase: 0 */
+const test = require('ava')
+const app = require('./helper/server')
 
-import {join} from 'path'
-import {encode} from 'lagden-hex'
-import test from 'ava'
-import superkoa from './helpers/superkoa'
-
-const app = join(__dirname, '..', 'app')
-
+let boletoDate = new Intl.DateTimeFormat('pt-BR').format(new Date(Date.now() + 1000000000))
 let createdBoletoId
 
-test.before('POST /boletos - 201', async t => {
-	const r = await superkoa(app)
+test('POST /boletos - 201', async t => {
+	const r = await app
 		.post('/boletos')
 		.set('X-Boleto-App', 'Test')
-		.set('X-Boleto-Token', encode(String(Date.now()), false))
+		.set('X-Boleto-Token', Date.now())
 		.send({
 			bank_billet: {
 				amount: '1.594,36',
-				expire_at: '30/12/2016',
+				expire_at: boletoDate,
 				description: 'BOLETO DE TESTES',
 				customer_person_name: 'Parvi Manaus',
 				customer_cnpj_cpf: '07.514.434/0006-63',
@@ -33,19 +28,19 @@ test.before('POST /boletos - 201', async t => {
 			}
 		})
 
-	createdBoletoId = JSON.parse(r.text).id
+	createdBoletoId = r.body.id
 	t.is(r.status, 201)
 })
 
 test('POST /boletos - 422', async t => {
-	const r = await superkoa(app)
+	const r = await app
 		.post('/boletos')
 		.set('X-Boleto-App', 'Test')
-		.set('X-Boleto-Token', encode(String(Date.now()), false))
+		.set('X-Boleto-Token', Date.now())
 		.send({
 			bank_billet: {
 				amount: '1.594,36',
-				expire_at: '30/12/2016',
+				expire_at: boletoDate,
 				description: 'BOLETO DE TESTES',
 				customer_person_name: 'Parvi Manaus',
 				customer_cnpj_cpf: '07.514.434/0006-63',
@@ -60,53 +55,51 @@ test('POST /boletos - 422', async t => {
 		})
 
 	t.is(r.status, 422)
-	t.is(r.text, '{"errors":{"customer_zipcode":["precisa ser 12345678 ou 12345-123"],"amount":[]}}')
+	t.snapshot(r.body)
 })
 
 test('POST /boletos - 400', async t => {
-	const r = await superkoa(app)
+	const r = await app
 		.post('/boletos')
-		// .set('X-Boleto-App', 'Test')
-		.set('X-Boleto-Token', encode(String(Date.now()), false))
+		.set('X-Boleto-Token', Date.now())
 		.send({})
 
 	t.is(r.status, 400)
 })
 
-// Cancel
 test('PUT /boletos/:id/cancel - 204', async t => {
-	const r = await superkoa(app)
+	const r = await app
 		.put(`/boletos/${createdBoletoId}/cancel`)
 		.set('X-Boleto-App', 'Test')
-		.set('X-Boleto-Token', encode(String(Date.now()), false))
+		.set('X-Boleto-Token', Date.now())
 		.send()
 
 	t.is(r.status, 204)
 })
 
 test('PUT /boletos/:id/cancel - 404', async t => {
-	const r = await superkoa(app)
-		.put(`/boletos/1/cancel`)
+	const r = await app
+		.put('/boletos/1/cancel')
 		.set('X-Boleto-App', 'Test')
-		.set('X-Boleto-Token', encode(String(Date.now()), false))
+		.set('X-Boleto-Token', Date.now())
 
 	t.is(r.status, 404)
 })
 
 test('PUT /boletos/:id/cancel - 400', async t => {
-	const r = await superkoa(app)
-		.put(`/boletos/1/cancel`)
-		.set('X-Boleto-Token', encode(String(Date.now()), false))
+	const r = await app
+		.put('/boletos/1/cancel')
+		.set('X-Boleto-Token', Date.now())
 
 	t.is(r.status, 400)
 })
 
-test.after('PUT /boletos/:id/cancel - 422', async t => {
-	const r = await superkoa(app)
+test('PUT /boletos/:id/cancel - 403', async t => {
+	const r = await app
 		.put(`/boletos/${createdBoletoId}/cancel`)
 		.set('X-Boleto-App', 'Test')
-		.set('X-Boleto-Token', encode(String(Date.now()), false))
+		.set('X-Boleto-Token', Date.now())
 
-	t.is(r.status, 422)
-	t.is(r.text, '{"errors":{"status":["cannot transition via cancel"]}}')
+	t.is(r.status, 403)
+	t.snapshot(r.body)
 })

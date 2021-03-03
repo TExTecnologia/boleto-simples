@@ -15,7 +15,7 @@ var endPointUrl = isDev ? 'https://boleto-simples.textecnologia.com.br/sandbox' 
 var numeroBoleto = '{!caixa__Parcela__c.NumeroBoleto__c}'
 
 function _cleanup(c) {
-  return c.replace(/[^\d]/g, '')
+  return c.replace(/\D/g, '')
 }
 
 function gravaNumeroBoleto(idBoleto) {
@@ -30,7 +30,7 @@ function gravaNumeroBoleto(idBoleto) {
     window.location.reload(true)
   } else {
     alert('Erro ao atualizar o número do boleto: ' + idBoleto)
-    console.log('Erro ao atualizar o número do boleto: ', idBoleto)
+    console.log('Erro ao atualizar o número do boleto:', idBoleto)
   }
 }
 

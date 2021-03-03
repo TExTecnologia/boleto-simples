@@ -1,60 +1,32 @@
 {
-  "name": "boleto-simples",
+  "name": "boilerplate-rest",
   "version": "1.0.0",
-  "repository": "TExTecnologia/boleto-simples",
-  "description": "Comunicação entre o FrontEnd e API do Boleto Simples",
-  "keywords": [
-    "boleto",
-    "simples",
-    "registrado",
-    "API"
-  ],
-  "author": "Thiago Lagden",
   "license": "MIT",
+  "scripts": {
+    "eslint": "eslint --config .eslintrc.js --ext .js --ignore-path .gitignore .",
+    "pretest": "npm run eslint",
+    "coverage": "nyc ava -s",
+    "test": "ava -s",
+    "start": "node server"
+  },
   "dependencies": {
-    "babel-plugin-transform-async-to-generator": "6.16.0",
-    "babel-register": "6.18.0",
-    "debug": "2.3.3",
-    "got": "6.6.3",
-    "kcors": "2.2.0",
-    "koa": "2.0.0-alpha.7",
-    "koa-bodyparser": "3.2.0",
-    "koa-compress": "2.0.0",
-    "koa-conditional-get": "2.0.0",
-    "koa-etag": "3.0.0",
-    "koa-response-time": "2.0.0",
-    "koa-router": "7.0.1",
-    "lagden-hex": "1.2.0"
+    "@koa/router": "10.0.0",
+    "@tadashi/koa-base": "3.17.1",
+    "debug": "4.3.1",
+    "got": "11.8.2",
+    "koa": "2.13.1",
+    "koa-bodyparser": "4.3.0",
+    "local-access": "1.1.0",
+    "supports-color": "8.1.1"
   },
   "devDependencies": {
-    "ava": "0.17.0",
-    "coveralls": "2.11.15",
-    "nodemon": "1.11.0",
-    "nyc": "10.0.0",
-    "supertest": "2.0.1",
-    "supertest-as-promised": "4.0.2",
-    "xo": "0.17.1"
-  },
-  "scripts": {
-    "report": "nyc report --reporter=html",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "pretest": "xo",
-    "test": "NODE_ENV=test nyc ava",
-    "start": "NODE_ENV=dev DEBUG=webhook:* nodemon index.js"
-  },
-  "xo": {
-    "envs": [
-      "node"
-    ],
-    "semicolon": false
-  },
-  "ava": {
-    "concurrency": 1,
-    "timeout": "30s"
-  },
-  "main": "index.js",
-  "files": [
-    "app",
-    "readme.md"
-  ]
+    "@tadashi/hex-id": "2.0.0",
+    "ava": "3.15.0",
+    "eslint": "7.21.0",
+    "eslint-config-xo": "0.35.0",
+    "eslint-plugin-unicorn": "28.0.2",
+    "hash-to-port": "1.2.0",
+    "nyc": "15.1.0",
+    "supertest": "6.1.3"
+  }
 }

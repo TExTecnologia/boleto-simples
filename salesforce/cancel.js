@@ -17,7 +17,7 @@ function cancelaNumeroBoleto() {
   var updateRec = []
   var lancamento = new sforce.SObject('caixa__Parcela__c')
   lancamento.Id = '{!caixa__Parcela__c.Id}'
-  lancamento.NumeroBoleto__c = null
+  lancamento.NumeroBoleto__c = undefined
   updateRec.push(lancamento)
   var result = sforce.connection.update(updateRec)
   console.log(result)
@@ -25,7 +25,7 @@ function cancelaNumeroBoleto() {
     window.location.reload(true)
   } else {
     alert('Erro ao atualizar o número do boleto: ' + numeroBoleto)
-    console.log('Erro ao atualizar o número do boleto: ', numeroBoleto)
+    console.log('Erro ao atualizar o número do boleto:', numeroBoleto)
   }
 }
 
